@@ -1,17 +1,11 @@
 name: 'Upload to CDN'
 description: 'Upload static assets to Frontend Plattform CDN'
 inputs:
-  project-id:
-    description: 'CDN Google Project ID'
+  cdn-environment:
+    description: 'CDN environment name (cdn.dev.nav.no or cdn.nav.no)'
     required: true
-  project-name:
-    description: 'CDN Google Project name'
-    required: true
-  environment:
-    description: 'Environment name'
-    required: true
-  team-name:
-    description: 'Team name'
+  cdn-cdn-team-name:
+    description: 'CDN team name'
     required: true
   source:
     description: 'Source directory'
@@ -27,14 +21,35 @@ outputs:
 runs:
   using: "composite"
   steps:
+    # Set environment variables for cdn.dev.nav.no
+    - id: 'dev-env'
+      if: ${{ inputs.cdn-environment == 'cdn.dev.nav.no' }}
+      run: |
+        echo "Setting environment variables for cdn.dev.nav.no"
+        echo "PROJECT_ID=95282974971" >> $GITHUB_ENV
+        echo "PROJECT_NAME=frontendplattform-dev-2535" >> $GITHUB_ENV
+
+    # Set environment variables for cdn.nav.no
+    - id: 'prod-env'
+      if: ${{ inputs.environment == 'cdn.nav.no' }}
+      run: |
+        echo "Setting environment variables for cdn.nav.no"
+        echo "PROJECT_ID=95282974971" >> $GITHUB_ENV
+        echo "PROJECT_NAME=frontendplattform-dev-2535" >> $GITHUB_ENV
+
+    # Authenticate with Google Cloud using Workload Identity Federation
     - id: 'auth'
       uses: 'google-github-actions/auth@v0'
+      env:
+        GCP_PROJECT_ID: ${{ env.PROJECT_ID }}
+        GCP_SA_EMAIL: gh-${{ inputs.cdn-team-name }}@${{ env.PROJECT_NAME }}.iam.gserviceaccount.com
       with:
-        workload_identity_provider: 'projects/${{ inputs.project-id }}/locations/global/workloadIdentityPools/frontend-plattform-${{ inputs.environment }}/providers/github-oidc-provider'
-        service_account: 'gh-${{ inputs.team-name }}@${{ inputs.project-name }}.iam.gserviceaccount.com'
+        workload_identity_provider: 'projects/${{ env.PROJECT_ID }}/locations/global/workloadIdentityPools/frontend-plattform-${{ inputs.cdn-environment }}/providers/github-oidc-provider'
+        service_account: 'gh-${{ inputs.cdn-team-name }}@${{ env.PROJECT_NAME }}.iam.gserviceaccount.com'
 
+    # Upload files to Google Cloud Storage Bucket connected to CDN
     - id: 'upload-file'
       uses: 'google-github-actions/upload-cloud-storage@v0'
       with:
         path: '${{ inputs.source }}'
-        destination: 'frontend-plattform-${{ inputs.environment }}-${{ inputs.team-name }}/${{ inputs.team-name }}/${{ inputs.destination }}'
+        destination: 'frontend-plattform-${{ inputs.cdn-environment }}-${{ inputs.cdn-team-name }}/${{ inputs.cdn-team-name }}/${{ inputs.destination }}'
