@@ -4,7 +4,7 @@ inputs:
   cdn-environment:
     description: 'CDN environment name (cdn.dev.nav.no or cdn.nav.no)'
     required: true
-  cdn-cdn-team-name:
+  cdn-team-name:
     description: 'CDN team name'
     required: true
   source:
