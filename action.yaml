@@ -29,6 +29,9 @@ runs:
         echo "Setting environment variables for cdn.dev.nav.no"
         echo "PROJECT_ID=95282974971" >> $GITHUB_ENV
         echo "PROJECT_NAME=frontendplattform-dev-2535" >> $GITHUB_ENV
+        echo "LOGICAL_NAME=frontend-plattform-dev" >> $GITHUB_ENV
+        echo "BUCKET_NAME=frontend-plattform-dev-${{ inputs.cdn-team-name }}" >> $GITHUB_ENV
+        echo "SA_NAME=sa-${{ inputs.cdn-team-name }}" >> $GITHUB_ENV
 
     # Set environment variables for cdn.nav.no
     - id: 'prod-env'
@@ -38,6 +41,9 @@ runs:
         echo "Setting environment variables for cdn.nav.no"
         echo "PROJECT_ID=95282974971" >> $GITHUB_ENV
         echo "PROJECT_NAME=frontendplattform-dev-2535" >> $GITHUB_ENV
+        echo "LOGICAL_NAME=frontend-plattform-dev" >> $GITHUB_ENV
+        echo "BUCKET_NAME=frontend-plattform-dev-${{ inputs.cdn-team-name }}" >> $GITHUB_ENV
+        echo "SA_NAME=sa-${{ inputs.cdn-team-name }}" >> $GITHUB_ENV
 
     # Authenticate with Google Cloud using Workload Identity Federation
     - id: 'auth'
@@ -46,12 +52,12 @@ runs:
         GCP_PROJECT_ID: ${{ env.PROJECT_ID }}
         GCP_SA_EMAIL: gh-${{ inputs.cdn-team-name }}@${{ env.PROJECT_NAME }}.iam.gserviceaccount.com
       with:
-        workload_identity_provider: 'projects/${{ env.PROJECT_ID }}/locations/global/workloadIdentityPools/frontend-plattform-${{ inputs.cdn-environment }}/providers/github-oidc-provider'
-        service_account: 'gh-${{ inputs.cdn-team-name }}@${{ env.PROJECT_NAME }}.iam.gserviceaccount.com'
+        workload_identity_provider: 'projects/${{ env.PROJECT_ID }}/locations/global/workloadIdentityPools/${{ env.LOGICAL_NAME }}/providers/github-oidc-provider'
+        service_account: '${{ env.SA_NAME }}@${{ env.PROJECT_NAME }}.iam.gserviceaccount.com'
 
     # Upload files to Google Cloud Storage Bucket connected to CDN
     - id: 'upload-file'
       uses: 'google-github-actions/upload-cloud-storage@v0'
       with:
         path: '${{ inputs.source }}'
-        destination: 'frontend-plattform-${{ inputs.cdn-environment }}-${{ inputs.cdn-team-name }}/${{ inputs.cdn-team-name }}/${{ inputs.destination }}'
+        destination: '${{ env.BUCKET_NAME }}/${{ inputs.cdn-team-name }}/${{ inputs.destination }}'
