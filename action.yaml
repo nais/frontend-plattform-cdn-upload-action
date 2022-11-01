@@ -1,0 +1,40 @@
+name: 'Upload to CDN'
+description: 'Upload static assets to Frontend Plattform CDN'
+inputs:
+  project-id:
+    description: 'CDN Google Project ID'
+    required: true
+  project-name:
+    description: 'CDN Google Project name'
+    required: true
+  environment:
+    description: 'Environment name'
+    required: true
+  team-name:
+    description: 'Team name'
+    required: true
+  source:
+    description: 'Source directory'
+    required: true
+  destination:
+    description: 'Destination directory'
+    required: true
+
+outputs:
+  uploaded:
+    description: "Uploaded files"
+    value: ${{ steps.upload-file.outputs.uploaded }}
+runs:
+  using: "composite"
+  steps:
+    - id: 'auth'
+      uses: 'google-github-actions/auth@v0'
+      with:
+        workload_identity_provider: 'projects/${{ inputs.project-id }}/locations/global/workloadIdentityPools/frontend-plattform-${{ inputs.environment }}/providers/github-oidc-provider'
+        service_account: 'gh-${{ inputs.team-name }}@${{ inputs.project-name }}.iam.gserviceaccount.com'
+
+    - id: 'upload-file'
+      uses: 'google-github-actions/upload-cloud-storage@v0'
+      with:
+        path: '${{ inputs.source }}'
+        destination: 'frontend-plattform-${{ inputs.environment }}-${{ inputs.team-name }}/${{ inputs.team-name }}/${{ inputs.destination }}'
