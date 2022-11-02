@@ -39,10 +39,10 @@ runs:
       shell: bash
       run: |
         echo "Setting environment variables for cdn.nav.no"
-        echo "PROJECT_ID=95282974971" >> $GITHUB_ENV
-        echo "PROJECT_NAME=frontendplattform-dev-2535" >> $GITHUB_ENV
-        echo "LOGICAL_NAME=frontend-plattform-dev" >> $GITHUB_ENV
-        echo "BUCKET_NAME=frontend-plattform-dev-${{ inputs.cdn-team-name }}" >> $GITHUB_ENV
+        echo "PROJECT_ID=59294802824" >> $GITHUB_ENV
+        echo "PROJECT_NAME=frontendplattform-prod-55b3" >> $GITHUB_ENV
+        echo "LOGICAL_NAME=frontend-plattform-prod" >> $GITHUB_ENV
+        echo "BUCKET_NAME=frontend-plattform-prod-${{ inputs.cdn-team-name }}" >> $GITHUB_ENV
         echo "SA_NAME=gh-${{ inputs.cdn-team-name }}" >> $GITHUB_ENV
 
     # Authenticate with Google Cloud using Workload Identity Federation
