@@ -35,7 +35,7 @@ runs:
 
     # Set environment variables for cdn.nav.no
     - id: 'prod-env'
-      if: ${{ inputs.environment == 'cdn.nav.no' }}
+      if: ${{ inputs.cdn-environment == 'cdn.nav.no' }}
       shell: bash
       run: |
         echo "Setting environment variables for cdn.nav.no"
