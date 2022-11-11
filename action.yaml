@@ -73,6 +73,7 @@ runs:
 
     - name: 'Invalidating cache'
       if: ${{ inputs.cache-invalidation == 'true' }}
+      shell: bash
       run: |
         gcloud compute url-maps invalidate-cdn-cache ${{ env.LOGICAL_NAME }} \
           --global \
