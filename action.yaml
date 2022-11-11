@@ -79,6 +79,7 @@ runs:
       if: ${{ inputs.cache-invalidation == 'true' }}
       shell: bash
       run: |
+        console_url="https://console.cloud.google.com/net-services/loadbalancing/details/httpAdvanced/${{ env.LOGICAL_NAME }}?project=${{ env.PROJECT_ID }}"
         async_flag=""
 
         if [ "${{ inputs.cache-invalidation-background }}" = "true" ]; then
@@ -93,8 +94,8 @@ runs:
     - if: ${{ inputs.cache-invalidation == 'true' && inputs.cache-invalidation-background == 'true' }}
       shell: bash
       run: |
-        echo "Cache invalidation is running in the background. It may take up \
-              to 15 minutes before the cache is invalidated. You can check the \
-              status of the invalidation in the Google Cloud Console or set \
-              `cache-invalidation-background` to `false` to wait for the \
-              invalidation to complete."
+        echo "### CDN Cache Invalidation \
+              Cache invalidation is running in the background. It may take up to `15 minutes` \
+              before the cache is invalidated. You can check the status of the invalidation in \
+              [Google Cloud Console]($console_url) or set `cache-invalidation-background` to \
+              `false` to wait for the invalidation to complete." >> $GITHUB_STEP_SUMMARY
