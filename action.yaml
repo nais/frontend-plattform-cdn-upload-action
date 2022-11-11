@@ -13,6 +13,14 @@ inputs:
   destination:
     description: 'Destination directory'
     required: true
+  cache-invalidation:
+    description: 'Cache invalidation'
+    required: false
+    default: 'false'
+  cache-invalidation-background:
+    description: 'Run cache invalidation in the background without waiting'
+    required: false
+    default: 'true'
 
 outputs:
   uploaded:
@@ -61,3 +69,38 @@ runs:
       with:
         path: '${{ inputs.source }}'
         destination: '${{ env.BUCKET_NAME }}/${{ inputs.cdn-team-name }}/${{ inputs.destination }}'
+
+    # Invalidate cache if cache-invalidation is set to true
+    - name: 'Set up Cloud SDK'
+      if: ${{ inputs.cache-invalidation == 'true' }}
+      uses: 'google-github-actions/setup-gcloud@v1'
+
+    - name: 'Invalidating cache'
+      if: ${{ inputs.cache-invalidation == 'true' }}
+      shell: bash
+      run: |
+        path="/${{ inputs.cdn-team-name }}/${{ inputs.destination }}"
+        path="${path%/}/*"
+
+        async=""
+        if [ "${{ inputs.cache-invalidation-background }}" = "true" ]; then
+          async="--async"
+        fi
+
+        gcloud compute url-maps invalidate-cdn-cache ${{ env.LOGICAL_NAME }} --global $async --path $path
+
+    - if: ${{ inputs.cache-invalidation == 'true' && inputs.cache-invalidation-background == 'true' }}
+      shell: bash
+      run: |
+        path="/${{ inputs.cdn-team-name }}/${{ inputs.destination }}"
+        path="${path%/}/*"
+
+        base_url="https://console.cloud.google.com/net-services/loadbalancing/details/httpAdvanced"
+        console_url="$base_url/${{ env.LOGICAL_NAME }}?project=${{ env.PROJECT_ID }}"
+
+        echo "### CDN Cache Invalidation" >> $GITHUB_STEP_SUMMARY
+        echo "Path: \`$path\`" >> $GITHUB_STEP_SUMMARY
+        echo "Cache invalidation is running in the background. It may take up to `15 minutes` \
+              before the cache is invalidated. You can check the status of the invalidation in \
+              [Google Cloud Console]($console_url) → Caching or set \`cache-invalidation-background\` \
+              to \`false\` in order to wait for the invalidation to complete." >> $GITHUB_STEP_SUMMARY
