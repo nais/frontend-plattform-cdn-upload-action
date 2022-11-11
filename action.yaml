@@ -13,6 +13,10 @@ inputs:
   destination:
     description: 'Destination directory'
     required: true
+  cache-invalidation:
+    description: 'Cache invalidation'
+    required: false
+    default: 'false'
 
 outputs:
   uploaded:
@@ -61,3 +65,16 @@ runs:
       with:
         path: '${{ inputs.source }}'
         destination: '${{ env.BUCKET_NAME }}/${{ inputs.cdn-team-name }}/${{ inputs.destination }}'
+
+    # Invalidate cache if cache-invalidation is set to true
+    - name: 'Set up Cloud SDK'
+      if: ${{ inputs.cache-invalidation == 'true' }}
+      uses: 'google-github-actions/setup-gcloud@v1'
+
+    - name: 'Invalidating cache'
+      if: ${{ inputs.cache-invalidation == 'true' }}
+      run: |
+        gcloud compute url-maps invalidate-cdn-cache ${{ env.LOGICAL_NAME }} \
+          --global \
+          --path "/${{ inputs.cdn-team-name }}/${{ inputs.destination }}/*"
+
