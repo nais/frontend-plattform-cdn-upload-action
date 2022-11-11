@@ -101,4 +101,4 @@ runs:
         echo "Cache invalidation is running in the background. It may take up to `15 minutes` \
               before the cache is invalidated. You can check the status of the invalidation in \
               [Google Cloud Console]($console_url) → Caching or set \`cache-invalidation-background\` \
-              to `false` to wait for the invalidation to complete." >> $GITHUB_STEP_SUMMARY
+              to \`false\` in order to wait for the invalidation to complete." >> $GITHUB_STEP_SUMMARY
