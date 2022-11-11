@@ -97,8 +97,8 @@ runs:
         console_url="$base_url/${{ env.LOGICAL_NAME }}?project=${{ env.PROJECT_ID }}"
 
         echo "### CDN Cache Invalidation" >> $GITHUB_STEP_SUMMARY
-        echo "Path: `/${{ inputs.cdn-team-name }}/${{ inputs.destination }}/*`" >> $GITHUB_STEP_SUMMARY
+        echo "Path: \`/${{ inputs.cdn-team-name }}/${{ inputs.destination }}/*\`" >> $GITHUB_STEP_SUMMARY
         echo "Cache invalidation is running in the background. It may take up to `15 minutes` \
               before the cache is invalidated. You can check the status of the invalidation in \
-              [Google Cloud Console]($console_url) → Caching or set `cache-invalidation-background` \
+              [Google Cloud Console]($console_url) → Caching or set \`cache-invalidation-background\` \
               to `false` to wait for the invalidation to complete." >> $GITHUB_STEP_SUMMARY
